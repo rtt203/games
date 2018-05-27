@@ -1,6 +1,8 @@
 import sys, os, pygame, random
 from pygame.locals import *
-from os import path
+import threading
+import time
+
 x_coord = 1
 y_coord = 320
 x_speed = 0
@@ -13,7 +15,7 @@ go2 = 0
 
 
 
-
+#winndow
 def init_window():
     pygame.init()
     window = pygame.display.set_mode((1280, 720))
@@ -30,7 +32,7 @@ def load_data(name, colorkey = None):
         image.set_colorkey(colorkey, RLEACCEL)
     return image, image.get_rect()
 
-
+#background
 def draw_background():
     screen = pygame.display.get_surface()
     back, back_rect = load_data("sky.jpg")
@@ -50,20 +52,28 @@ class Skything(pygame.sprite.Sprite):
         self.rect.x = cX
         self.rect.y = cY
 
-
 class Our_air(Skything):
     def __init__(self, cX, cY):
-        Skything.__init__(self, "1.png", cX, cY)
+        Skything.__init__(self, "ourplane.png", cX, cY)
 
 
 class Enemy_air(Skything):
     def __init__(self, cX, cY):
-        Skything.__init__(self, "2.png", cX, cY)
+        Skything.__init__(self, "enemyplane.png", cX, cY)
+
+def my_timer(print_interval):
+    data = threading.local()
+    data.counter = 1
+    while True:
+        time.sleep(print_interval)
+        print("I am alive %d times!" % data.counter, threading.current_thread().name)
+        data.counter += 1
+
+t = threading.Thread(target=my_timer, name="My time thread", args=(5, ), daemon=True)
+t.start()
 
 
-
-
-
+#main event
 def input (events):
     global x_coord, y_coord, x_speed, y_speed, life
     for event in events:
@@ -88,6 +98,7 @@ def input (events):
     if (y_coord > 500): y_coord = 500
 
 
+#main game
 def action(bk):
     pygame.mixer.music.load('nir.mp3')
     pygame.mixer.music.play(-1)
@@ -143,7 +154,6 @@ def action(bk):
         enemy_airs.draw(screen)
         our_airplane.draw(screen)
         pygame.display.flip()
-
 
 def main():
     init_window()
